@@ -4,6 +4,11 @@ from markets import fetch_events, extract_markets
 from detector import is_anomalous
 from alert import send_alert
 from config import POLL_INTERVAL
+from datetime import datetime, timezone
+
+ts = datetime.now(timezone.utc).strftime("%H:%M:%S UTC")
+
+
 
 print("🚀 Polymarket Gamma bot started")
 
@@ -39,6 +44,7 @@ while True:
                     f"Volume Spike: ${delta:,.0f}\n"
                     f"Total Volume: ${volume:,.0f}\n"
                     f"Liquidity: ${liquidity:,.0f}\n"
+                    f"Time: {ts}\n"
                 )
                 send_alert(msg)
 
