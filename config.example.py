@@ -1,15 +1,23 @@
-# polling
-POLL_INTERVAL = 10
+# config.py
 
-# thresholds
-MIN_USDC_BET = 25_000
-MAX_WALLET_TRADES = 2
-MAX_TOTAL_ACTIVITY = 10
-MAX_WALLET_AGE_DAYS = 30
+# ======================
+# Polling
+# ======================
+POLL_INTERVAL = 10  # seconds
 
-# Polymarket
-BASE_URL = "https://data-api.polymarket.com"
+# ======================
+# Anomaly thresholds (market-based)
+# ======================
+MIN_VOLUME_SPIKE_USDC = 50_000     # alert if volume jumps by this much
+MIN_LIQUIDITY_USDC = 10_000        # ignore illiquid markets
 
-# Telegram (fill locally)
+# ======================
+# Polymarket Gamma API
+# ======================
+BASE_URL = "https://gamma-api.polymarket.com"
+
+# ======================
+# Telegram
+# ======================
 TELEGRAM_BOT_TOKEN = "YOUR_TELEGRAM_BOT_TOKEN"
 TELEGRAM_CHAT_ID = "YOUR_TELEGRAM_CHAT_ID"
