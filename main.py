@@ -1,43 +1,52 @@
+# main.py
 import time
-from trades import fetch_recent_trades
-from wallet import get_wallet_activity
+from markets import fetch_events, extract_markets
 from detector import is_anomalous
 from alert import send_alert
+from config import POLL_INTERVAL
 
-seen = set()
+print("🚀 Polymarket Gamma bot started")
 
-print("🚀 Polymarket REST bot started")
+previous_volume = {}
 
 while True:
     try:
-        trades = fetch_recent_trades()
+        events = fetch_events(limit=50)
+        markets = extract_markets(events)
 
-        for t in trades:
-            trade_id = t.get("id")
-            if trade_id in seen:
-                continue
-            seen.add(trade_id)
+        for m in markets:
+            market_id = m["id"]
 
-            wallet = t.get("taker") or t.get("maker")
-            if not wallet:
-                continue
+            # cast immediately
+            volume = float(m.get("volume") or 0)
+            liquidity = float(m.get("liquidity") or 0)
 
-            wallet_stats = get_wallet_activity(wallet)
+            # previous snapshot
+            prev = previous_volume.get(market_id, volume)
+            delta = volume - prev
 
-            if is_anomalous(t, wallet_stats):
+            # trace log
+            # print(
+            #     f"[TRACE] {m.get('question')[:40]} | "
+            #     f"vol={volume:.0f} prev={prev:.0f} Δ={delta:.0f}"
+            # )
+
+            # anomaly detection
+            if is_anomalous(m, previous_volume):
                 msg = (
-                    f"🚨 *Unusual Polymarket Bet*\n\n"
-                    f"Market: {t.get('market_slug')}\n"
-                    f"Outcome: {t.get('outcome')}\n"
-                    f"Size: ${t.get('size_usdc'):,.0f}\n\n"
-                    f"Wallet: `{wallet}`\n"
-                    f"Wallet Age: {wallet_stats['age_days']:.1f} days\n"
-                    f"Polymarket Trades: {wallet_stats['polymarket_trades']}\n"
-                    f"Total Activity: {wallet_stats['total_activity']}"
+                    f"🚨 *Unusual Market Activity*\n\n"
+                    f"Market: {m.get('question')}\n"
+                    f"Volume Spike: ${delta:,.0f}\n"
+                    f"Total Volume: ${volume:,.0f}\n"
+                    f"Liquidity: ${liquidity:,.0f}\n"
                 )
                 send_alert(msg)
 
-        time.sleep(10)
+            # update snapshot LAST
+            previous_volume[market_id] = volume
+
+
+
 
     except Exception as e:
         print("Error:", e)
