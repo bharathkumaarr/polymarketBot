@@ -1,16 +1,25 @@
-from config import (
-    MIN_USDC_BET,
-    MAX_WALLET_TRADES,
-    MAX_TOTAL_ACTIVITY,
-    MAX_WALLET_AGE_DAYS
-)
+# detector.py
 
-def is_anomalous(trade, wallet):
-    size = trade.get("size_usdc", 0)
+def to_float(x):
+    try:
+        return float(x)
+    except (TypeError, ValueError):
+        return 0.0
 
-    return (
-        size >= MIN_USDC_BET and
-        wallet["polymarket_trades"] <= MAX_WALLET_TRADES and
-        wallet["total_activity"] <= MAX_TOTAL_ACTIVITY and
-        wallet["age_days"] <= MAX_WALLET_AGE_DAYS
-    )
+
+def is_anomalous(market, previous_snapshot):
+    market_id = market["id"]
+
+    volume = to_float(market.get("volume"))
+    liquidity = to_float(market.get("liquidity"))
+
+    if liquidity <= 0:
+        return False
+
+    prev_volume = to_float(previous_snapshot.get(market_id))
+    delta = volume - prev_volume
+
+    if delta >= 100 and liquidity >= 10_000:
+        return True
+
+    return False
