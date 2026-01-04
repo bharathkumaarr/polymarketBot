@@ -19,7 +19,7 @@ def is_anomalous(market, previous_snapshot):
     prev_volume = to_float(previous_snapshot.get(market_id))
     delta = volume - prev_volume
 
-    if delta >= 100 and liquidity >= 10_000:
+    if delta >= 10_000 and liquidity >= 25_000:
         return True
 
     return False
