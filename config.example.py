@@ -1,0 +1,15 @@
+# polling
+POLL_INTERVAL = 10
+
+# thresholds
+MIN_USDC_BET = 25_000
+MAX_WALLET_TRADES = 2
+MAX_TOTAL_ACTIVITY = 10
+MAX_WALLET_AGE_DAYS = 30
+
+# Polymarket
+BASE_URL = "https://data-api.polymarket.com"
+
+# Telegram (fill locally)
+TELEGRAM_BOT_TOKEN = "YOUR_TELEGRAM_BOT_TOKEN"
+TELEGRAM_CHAT_ID = "YOUR_TELEGRAM_CHAT_ID"
